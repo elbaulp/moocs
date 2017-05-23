@@ -8,7 +8,7 @@ object Main {
         print(pascal(col, row) + " ")
       println()
     }
-    print(balance(":-()".toList))
+    print(balance(":-())(".toList))
   }
 
   /**
@@ -24,17 +24,19 @@ object Main {
     */
 
   def balance(chars: List[Char]): Boolean =  {
-    def check(b: Boolean, c: List[Char]): Boolean = c match {
-      case head :: tail =>
-        println(c)
-        if (head == ')' && !b) check(true, tail)
-        if (head == '(' && b) check(false, tail)
-        else check(b, tail)
-      case _ =>
-        println(b)
-        b
+    def check(acc: Int, c: List[Char]): Boolean = {
+      if (acc < 0) false
+      else c match {
+        case head::tail =>
+          if (head == '(') check(acc + 1, tail)
+          else if (head == ')') check(acc - 1, tail)
+          else check(acc, tail)
+        case _ =>
+          if (acc == 0) true
+          else false
+      }
     }
-    check(false, chars)
+    check(0, chars)
   }
 
   /**
