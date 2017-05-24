@@ -4,22 +4,37 @@ val z = new Rational(3, 2)
 
 
 class Rational(x: Int, y: Int) {
-  def add(r: Rational) =
-    new Rational(numer * r.denom + r.numer * denom,
-      denom * r.denom)
+  require(y != 0, "Denominator must be nonzero")
+
+  def this(x:Int) = this(x, 1)
+
+  private val g = gcd(x, y)
+  val numer = x / g
+  val denom = y / g
+
+  def <(that: Rational) = numer * that.denom < that.numer * denom
+
+  def max(that:Rational) = if (this < that) that else this
 
   def mul(r: Rational) = ???
 
-  def neg = new Rational(-numer, y)
+  def - (that: Rational) = this + -that
 
-  def sub(that: Rational) = add(that.neg)
+  def + (r: Rational) =
+    new Rational(numer * r.denom + r.numer * denom,
+      denom * r.denom)
+
+  def unary_- :Rational = new Rational(-numer, y)
 
   override def toString = numer + "/" + denom
 
-  def numer = x
+  private def gcd(a: Int, b: Int): Int =
+    if (b == 0) a else gcd(b, a % b)
 
-  def denom = y
 }
-x.neg
 
-x.sub(y).sub(z)
+x
+x - y - z
+y + y
+x < y
+x max y
