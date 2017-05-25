@@ -120,4 +120,16 @@ class FunSetSuite extends FunSuite {
     }
   }
 
+  test("Difference contains all elements in S1 not in S2 ") {
+    new TestSets {
+      val u = union(s1, s2)
+      val u2 = union(u, s3)
+      val d = diff(u2, s4)
+
+      assert(contains(d, 2), "Diff contains 2")
+      assert(contains(d, 3), "Diff contains 3")
+      assert(!contains(d, 1), "Diff not contains 1")
+    }
+  }
+
 }
