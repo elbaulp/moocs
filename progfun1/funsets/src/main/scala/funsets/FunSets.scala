@@ -58,7 +58,7 @@ object FunSets {
     @tailrec
     def iter(a: Int): Boolean = {
       if (a > 1000) true
-      else if (s(a) && p(a)) true
+      else if (s(a)) p(a)
       else iter(a + 1)
     }
     iter(-1000)
@@ -68,8 +68,8 @@ object FunSets {
    *   @tailrec
    *   def iter(a: Int, b: Int): Boolean = {
    *     if (a > b) true
-   *     else s(a) && p(a) match {
-   *       case true => true
+   *     else s(a)  match {
+   *       case true => p(a)
    *       case false => iter(a + 1, b)
    *     }
    *   }
