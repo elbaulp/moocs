@@ -78,6 +78,10 @@ class FunSetSuite extends FunSuite {
     val s2 = singletonSet(2)
     val s3 = singletonSet(3)
     val s4 = singletonSet(1)
+
+    val u12 = union(s1, s2)
+    val u123 = union(u12, s3)
+    val u1234 = union(u123, s4)
   }
 
   /**
@@ -132,4 +136,20 @@ class FunSetSuite extends FunSuite {
     }
   }
 
+  test("Filter contains all elements for which p holds") {
+    new TestSets {
+      val fil = filter(u1234, x => x > 2)
+
+      assert(contains(fil, 3), "Filter contains 3")
+      assert(!contains(fil, 2), "Filter does not contains 2")
+    }
+  }
+
+  test("Test if p holds for all elements in the range [-1000,1000]") {
+    new TestSets {
+      val f = forall(u1234, x => x < 5)
+
+      assert(f == true, "All values in {1,2,3} < 5")
+    }
+  }
 }

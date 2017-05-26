@@ -1,5 +1,8 @@
 package funsets
 
+import scala.annotation.tailrec
+
+
 /**
  * 2. Purely Functional Sets.
  */
@@ -41,7 +44,7 @@ object FunSets {
   /**
    * Returns the subset of `s` for which `p` holds.
    */
-  def filter(s: Set, p: Int => Boolean): Set = ???
+  def filter(s: Set, p: Int => Boolean): Set = x => s(x) && p(x)
 
   /**
    * The bounds for `forall` and `exists` are +/- 1000.
@@ -52,13 +55,26 @@ object FunSets {
    * Returns whether all bounded integers within `s` satisfy `p`.
    */
   def forall(s: Set, p: Int => Boolean): Boolean = {
+    @tailrec
     def iter(a: Int): Boolean = {
-      if (???) ???
-      else if (???) ???
-      else iter(???)
+      if (a > 1000) true
+      else if (s(a) && p(a)) true
+      else iter(a + 1)
     }
-    iter(???)
+    iter(-1000)
   }
+
+  /* def forall(s: Set, p: Int => Boolean): Boolean = {
+   *   @tailrec
+   *   def iter(a: Int, b: Int): Boolean = {
+   *     if (a > b) true
+   *     else s(a) && p(a) match {
+   *       case true => true
+   *       case false => iter(a + 1, b)
+   *     }
+   *   }
+   *   iter(-1000, 1000)
+   * } */
 
   /**
    * Returns whether there exists a bounded integer within `s`
