@@ -145,12 +145,23 @@ class FunSetSuite extends FunSuite {
     }
   }
 
-  test("Test if p holds for all elements in the range [-1000,1000]") {
+  test("P holds for all elements in the range [-1000,1000]") {
     new TestSets {
       val f = forall(u1234, x => x < 5)
       val f2 = forall(u1234, x => x < 0)
+
       assert(f == true, "All values in {1,2,3} < 5")
       assert(f2 == false, "All values in {1,2,3} > 0")
+    }
+  }
+
+  test("P holds if there exists at least one elements that satisfies p") {
+    new TestSets {
+      val f = exists(u1234, x => x % 2 == 0)
+      val f1 = exists(u1234, x => x < 0)
+
+      assert(f == true, "At least on element in {1,2,3} is multiple of 2")
+      assert(f1 == false, "No element in {1,2,3} < 0")
     }
   }
 }
