@@ -2,7 +2,6 @@ package funsets
 
 import org.scalatest.FunSuite
 
-
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
@@ -47,7 +46,6 @@ class FunSetSuite extends FunSuite {
   //   assert(1 + 2 === 3)
   // }
 
-
   import FunSets._
 
   test("contains is implemented") {
@@ -82,6 +80,25 @@ class FunSetSuite extends FunSuite {
     val u12 = union(s1, s2)
     val u123 = union(u12, s3)
     val u1234 = union(u123, s4)
+
+    //  {1,3,4,5,7,1000}
+    val set = union(
+      union(
+        union(
+          union(
+            union(
+              singletonSet(1),
+              singletonSet(3)
+            ),
+            singletonSet(4)
+          ),
+          singletonSet(5)
+        ),
+        singletonSet(7)
+      ),
+      singletonSet(1000)
+    )
+
   }
 
   /**
@@ -150,10 +167,12 @@ class FunSetSuite extends FunSuite {
       val f = forall(u1234, x => x < 5)
       val f2 = forall(u1234, x => x < 0)
       val f3 = forall(u1234, x => x % 2 == 0)
+      val f4 = forall(set, x => x < 5)
 
       assert(f == true, "All values in " + FunSets.toString(u1234) + " < 5")
       assert(f2 == false, "All values in " + FunSets.toString(u1234) + " > 0")
       assert(f3 == false, "Not all elements in " + FunSets.toString(u1234) + " are multiple of 2")
+      assert(f4 == false, "Not all eleemtns in " + FunSets.toString(set) + " are < 5")
     }
   }
 
