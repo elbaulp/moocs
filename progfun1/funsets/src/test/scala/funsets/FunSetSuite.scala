@@ -151,9 +151,9 @@ class FunSetSuite extends FunSuite {
       val f2 = forall(u1234, x => x < 0)
       val f3 = forall(u1234, x => x % 2 == 0)
 
-      assert(f == true, "All values in {1,2,3} < 5")
-      assert(f2 == false, "All values in {1,2,3} > 0")
-      assert(f3 == false, "Not all elements in {1,2,3} are multiple of 2")
+      assert(f == true, "All values in " + FunSets.toString(u1234) + " < 5")
+      assert(f2 == false, "All values in " + FunSets.toString(u1234) + " > 0")
+      assert(f3 == false, "Not all elements in " + FunSets.toString(u1234) + " are multiple of 2")
     }
   }
 
@@ -163,18 +163,22 @@ class FunSetSuite extends FunSuite {
       val f1 = exists(u1234, x => x < 0)
       val f2 = exists(u1234, x => x > 6)
 
-      assert(f == true, "No element in is multiple of 2")
-      assert(f1 == false, "No element in {1,2,3} < 0")
-      assert(f2 == false, "No element in {1,2,3} > 6")
+      assert(f == true, "No element in " + FunSets.toString(u1234) + " is multiple of 2")
+      assert(f1 == false, "No element in " + FunSets.toString(u1234) + " < 0")
+      assert(f2 == false, "No element in " + FunSets.toString(u1234) + " > 6")
     }
   }
 
   test("Map contains only elements mapped") {
     new TestSets {
+
       val f = map(u1234, x => x * 2)
 
       assert(f(1) == false, "1 is mapped to 2")
+      assert(f(2) == true, "1 is mapped to 2")
       assert(f(3) == false, "3 is mapped to 6")
+      assert(f(4) == true, "2 => 4")
+      assert(f(5) == false, "no element mapped to 5")
       assert(f(6) == true, "3 is mapped to 6")
     }
   }

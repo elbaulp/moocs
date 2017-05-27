@@ -93,8 +93,28 @@ object FunSets {
   /**
    * Returns a set transformed by applying `f` to each element of `s`.
    */
-  def map(s: Set, f: Int => Int): Set = x => exists(s, y => f(y) == x)//x => singletonSet(f(x))
-
+  def map(s: Set, f: Int => Int): Set =
+    /**
+      * Here we have two anonymous functions: x => ... and inside ... y => f(y) == x
+      * substituting the first function: F_x(x) = Exists(s, y => f(y) == x), so
+      * what is happening is that for every value we want to map we check if the original
+      * value is in the set, and return true there is a value in [-1000, 1000] such that f(y) == x
+      * , for example:
+      *
+      * s = {1,2,3}
+      * f(y) = 2y
+      *
+      * F_x(1) = Exists({1,2,3}, 2y == 1) => False
+      * F_x(2) = Exists({1,2,3}, 2y == 2) => True
+      *
+      * In every step we check in [-1000,1000] if the value is in the set {1,2,3} and check if it
+      * has a corresponding mapping (s(a) && p(a) inside exits), so for F_x(1) the second condition
+      * (p(a)) never holds because there is no mapping such that 2y == 1. On the other hand, in
+      *
+      * F_x(2) s(2) is true and p(2) is also true because in [-1000, 1000] exists a value such that
+      * 2y == 2, with y = 1.
+      */
+    x => exists(s, y => f(y) == x)
   /**
    * Displays the contents of a set
    */
