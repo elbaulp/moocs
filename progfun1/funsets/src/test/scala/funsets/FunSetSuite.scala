@@ -149,9 +149,11 @@ class FunSetSuite extends FunSuite {
     new TestSets {
       val f = forall(u1234, x => x < 5)
       val f2 = forall(u1234, x => x < 0)
+      val f3 = forall(u1234, x => x % 2 == 0)
 
       assert(f == true, "All values in {1,2,3} < 5")
       assert(f2 == false, "All values in {1,2,3} > 0")
+      assert(f3 == false, "Not all elements in {1,2,3} are multiple of 2")
     }
   }
 
@@ -159,9 +161,21 @@ class FunSetSuite extends FunSuite {
     new TestSets {
       val f = exists(u1234, x => x % 2 == 0)
       val f1 = exists(u1234, x => x < 0)
+      val f2 = exists(u1234, x => x > 6)
 
-      assert(f == true, "At least on element in {1,2,3} is multiple of 2")
+      assert(f == true, "No element in is multiple of 2")
       assert(f1 == false, "No element in {1,2,3} < 0")
+      assert(f2 == false, "No element in {1,2,3} > 6")
+    }
+  }
+
+  test("Map contains only elements mapped") {
+    new TestSets {
+      val f = map(u1234, x => x * 2)
+
+      assert(f(1) == false, "1 is mapped to 2")
+      assert(f(3) == false, "3 is mapped to 6")
+      assert(f(6) == true, "3 is mapped to 6")
     }
   }
 }

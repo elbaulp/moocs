@@ -57,11 +57,11 @@ object FunSets {
   def forall(s: Set, p: Int => Boolean): Boolean = {
     @tailrec
     def iter(a: Int): Boolean = {
-      if (a > 1000) true
+      if (a > bound) true
       else if (s(a)) p(a)
       else iter(a + 1)
     }
-    iter(-1000)
+    iter(-bound)
   }
 
   /* def forall(s: Set, p: Int => Boolean): Boolean = {
@@ -83,17 +83,17 @@ object FunSets {
   def exists(s: Set, p: Int => Boolean): Boolean = {
     @tailrec
     def iter(a: Int): Boolean = {
-      if (a > 1000) false
+      if (a > bound) false
       else if (s(a) && p(a)) true
       else iter(a + 1)
     }
-    iter(-1000)
+    iter(-bound)
   }
 
   /**
    * Returns a set transformed by applying `f` to each element of `s`.
    */
-  def map(s: Set, f: Int => Int): Set = ???
+  def map(s: Set, f: Int => Int): Set = x => exists(s, y => f(y) == x)//x => singletonSet(f(x))
 
   /**
    * Displays the contents of a set
