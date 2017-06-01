@@ -18,6 +18,7 @@ class HuffmanSuite extends FunSuite {
   test("weight of a larger tree") {
     new TestTrees {
       assert(weight(t1) === 5)
+      assert(weight(t2) === 9)
     }
   }
 
