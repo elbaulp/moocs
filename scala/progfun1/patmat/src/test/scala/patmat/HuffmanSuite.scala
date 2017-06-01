@@ -43,9 +43,17 @@ class HuffmanSuite extends FunSuite {
 
   test("combine of some leaf list") {
     val leaflist = List(Leaf('e', 1), Leaf('t', 2), Leaf('x', 4))
+    val leaflist2 = List(Leaf('a', 10), Leaf('s', 100), Leaf('x', 101))
+
     assert(combine(leaflist) === List(Fork(Leaf('e',1),Leaf('t',2),List('e', 't'),3), Leaf('x',4)))
+    assert(combine(leaflist2) === List(Leaf('x', 101), Fork(Leaf('a', 10), Leaf('s', 100), List('a', 's'), 110)))
   }
 
+  test("Merge trees until is isSingleton") {
+    val leaflist = List(Leaf('e', 1), Leaf('t', 2), Leaf('x', 4))
+
+    assert(until(singleton, combine)(leaflist) === List(Fork(Fork(Leaf('e',1),Leaf('t',2),List('e', 't'),3),Leaf('x',4),List('e', 't', 'x'),7)))
+  }
 
   test("decode and encode a very short text should be identity") {
     new TestTrees {

@@ -1,6 +1,7 @@
 package patmat
 
 import common._
+import scala.annotation.tailrec
 
 /**
  * Assignment 4: Huffman coding
@@ -72,7 +73,10 @@ object Huffman {
    *       println("integer is  : "+ theInt)
    *   }
    */
-  def times(chars: List[Char]): List[(Char, Int)] = ???
+  def times(chars: List[Char]): List[(Char, Int)] = {
+    val noDup = chars.distinct
+    noDup map (c => (c, chars.count(x => x == c)))
+  }
 
   /**
    * Returns a list of `Leaf` nodes for a given frequency table `freqs`.
@@ -81,12 +85,13 @@ object Huffman {
    * head of the list should have the smallest weight), where the weight
    * of a leaf is the frequency of the character.
    */
-  def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] = ???
+  def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] =
+    freqs.sortWith(_._2 < _._2) map (f => Leaf(f._1, f._2))
 
   /**
    * Checks whether the list `trees` contains only one single code tree.
    */
-  def singleton(trees: List[CodeTree]): Boolean = ???
+  def singleton(trees: List[CodeTree]): Boolean = trees.size == 1
 
   /**
    * The parameter `trees` of this function is a list of code trees ordered
@@ -99,8 +104,12 @@ object Huffman {
    *
    * If `trees` is a list of less than two elements, that list should be returned
    * unchanged.
-   */
-  def combine(trees: List[CodeTree]): List[CodeTree] = ???
+    */
+  //@tailrec
+  def combine(trees: List[CodeTree]): List[CodeTree] = trees match {
+    case x1 :: x2 :: tail => (makeCodeTree(x1, x2) :: combine(tail)).sortBy(weight)
+    case _ => trees
+  }
 
   /**
    * This function will be called in the following way:
@@ -119,7 +128,11 @@ object Huffman {
    *    the example invocation. Also define the return type of the `until` function.
    *  - try to find sensible parameter names for `xxx`, `yyy` and `zzz`.
    */
-  def until(xxx: ???, yyy: ???)(zzz: ???): ??? = ???
+  def until(isSingle: List[CodeTree] => Boolean,
+    merge: List[CodeTree] => List[CodeTree])(trees: List[CodeTree]): List[CodeTree] = isSingle(trees) match {
+    case true => trees
+    case false => until(isSingle, merge)(merge(trees))
+  }
 
   /**
    * This function creates a code tree which is optimal to encode the text `chars`.
