@@ -105,9 +105,8 @@ object Huffman {
    * If `trees` is a list of less than two elements, that list should be returned
    * unchanged.
     */
-  //@tailrec
   def combine(trees: List[CodeTree]): List[CodeTree] = trees match {
-    case x1 :: x2 :: tail => (makeCodeTree(x1, x2) :: combine(tail)).sortBy(weight)
+    case x1 :: x2 :: tail => (makeCodeTree(x1, x2) :: tail).sortBy(weight)
     case _ => trees
   }
 
@@ -127,7 +126,8 @@ object Huffman {
    *    is valid. The parameter types of `until` should match the argument types of
    *    the example invocation. Also define the return type of the `until` function.
    *  - try to find sensible parameter names for `xxx`, `yyy` and `zzz`.
-   */
+    */
+  @tailrec
   def until(isSingle: List[CodeTree] => Boolean,
     merge: List[CodeTree] => List[CodeTree])(trees: List[CodeTree]): List[CodeTree] = isSingle(trees) match {
     case true => trees
@@ -187,8 +187,20 @@ object Huffman {
   /**
    * This function encodes `text` using the code tree `tree`
    * into a sequence of bits.
-   */
-  def encode(tree: CodeTree)(text: List[Char]): List[Bit] = ???
+    */
+  def encode(tree: CodeTree)(text: List[Char]): List[Bit] = {
+    @tailrec
+    def encode0(t: CodeTree)(remain: List[Char], acc: List[Bit]): List[Bit] = remain match {
+      case head :: tail => t match {
+        case Leaf(_, _) => encode0(tree)(tail, acc)
+        case Fork(l, r, _, _) =>
+          if (chars(l) contains(head)) encode0(l)(remain, 0 +: acc)
+          else encode0(r)(remain, 1 +: acc)
+      }
+      case _ => acc
+    }
+    encode0(tree)(text, Nil).reverse
+  }
 
   // Part 4b: Encoding using code table
 
@@ -198,7 +210,10 @@ object Huffman {
    * This function returns the bit sequence that represents the character `char` in
    * the code table `table`.
    */
-  def codeBits(table: CodeTable)(char: Char): List[Bit] = ???
+  def codeBits(table: CodeTable)(char: Char): List[Bit] = table.find(_._1 == char) match {
+    case Some(c) => c._2
+    case None => Nil
+  }
 
   /**
    * Given a code tree, create a code table which contains, for every character in the
@@ -208,7 +223,14 @@ object Huffman {
    * a valid code tree that can be represented as a code table. Using the code tables of the
    * sub-trees, think of how to build the code table for the entire tree.
    */
-  def convert(tree: CodeTree): CodeTable = ???
+  def convert(tree: CodeTree): CodeTable = {
+    @tailrec
+    def convert0(acc: CodeTable, chars: List[Char]): CodeTable = chars match {
+      case head :: tail => convert0((head, encode(tree)(head +: Nil)) +: acc, tail)
+      case Nil => acc
+    }
+    convert0(Nil, chars(tree))
+  }
 
   /**
    * This function takes two code tables and merges them into one. Depending on how you
