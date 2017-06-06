@@ -1,6 +1,5 @@
 package patmat
 
-import common._
 import scala.annotation.tailrec
 
 /**
@@ -237,7 +236,7 @@ object Huffman {
    * use it in the `convert` method above, this merge method might also do some transformations
    * on the two parameter code tables.
    */
-  def mergeCodeTables(a: CodeTable, b: CodeTable): CodeTable = ???
+  def mergeCodeTables(a: CodeTable, b: CodeTable): CodeTable = a ::: b
 
   /**
    * This function encodes `text` according to the code tree `tree`.
@@ -245,5 +244,16 @@ object Huffman {
    * To speed up the encoding process, it first converts the code tree to a code table
    * and then uses it to perform the actual encoding.
    */
-  def quickEncode(tree: CodeTree)(text: List[Char]): List[Bit] = ???
+  def quickEncode(tree: CodeTree)(text: List[Char]): List[Bit] = {
+    val table = convert(tree)
+    @tailrec
+    def quickEncode0(bits: List[Bit], chars: List[Char]): List[Bit] = chars match {
+      case head :: tail => table.find(_._1 == head) match {
+          case Some(c) => quickEncode0(c._2.reverse ::: bits, tail)
+          case None => bits
+      }
+      case Nil => bits
+    }
+    quickEncode0(Nil, text).reverse
+  }
 }
