@@ -13,8 +13,8 @@ println(squareList1(1::2::3::4::Nil))
 def pack[T](xs: List[T]): List[List[T]] = xs match {
   case Nil => Nil
   case x :: xs1 =>
-    val spanned = xs span(y => y == x)
-    spanned._1 :: pack(spanned._2)
+    val (packed, rest) = xs span(y => y == x)
+    packed :: pack(rest)
 }
 
 println(pack(List("a", "a", "a", "b", "c", "c", "a")))
