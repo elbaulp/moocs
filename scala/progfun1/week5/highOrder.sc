@@ -18,3 +18,8 @@ def pack[T](xs: List[T]): List[List[T]] = xs match {
 }
 
 println(pack(List("a", "a", "a", "b", "c", "c", "a")))
+
+
+def encode[T](xs: List[T]): List[(T, Int)] = pack(xs) map(ys => (ys.head, ys.size))
+
+println(encode(List("a", "a", "a", "b", "c", "c", "a")))
