@@ -45,7 +45,12 @@ object Anagrams {
 
   /** Converts a sentence into its character occurrence list. */
   def sentenceOccurrences(s: Sentence): Occurrences =
-    (s map wordOccurrences).flatten
+    (s map wordOccurrences).flatten.
+      groupBy(_._1). // group by the char
+      map{case (c, l) => (c, l.map(_._2).sum)}. // Sum the counts of the same chars
+      toList.
+      sorted
+
 
   /** The `dictionaryByOccurrences` is a `Map` from different occurrences to a sequence of all
    *  the words that have that occurrence count.
