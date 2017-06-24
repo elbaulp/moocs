@@ -10,7 +10,8 @@ trait Solver extends GameDef {
   /**
    * Returns `true` if the block `b` is at the final position
    */
-  def done(b: Block): Boolean = ???
+  def done(b: Block): Boolean =
+    b.isStanding && b.b1.row == goal.row && b.b1.col == goal.col
 
   /**
    * This function takes two arguments: the current block `b` and
