@@ -102,7 +102,7 @@ trait Solver extends GameDef {
    */
   lazy val solution: List[Move] =
     pathsToGoal.toList match {
+      case Nil => Nil
       case xs => xs.head._2.reverse
-      case _ => Nil
     }
 }
