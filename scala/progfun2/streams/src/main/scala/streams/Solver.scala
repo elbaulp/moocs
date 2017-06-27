@@ -101,5 +101,8 @@ trait Solver extends GameDef {
    * position.
    */
   lazy val solution: List[Move] =
-    pathsToGoal.toList.head._2.reverse
+    pathsToGoal.toList match {
+      case xs => xs.head._2.reverse
+      case _ => Nil
+    }
 }
