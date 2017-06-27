@@ -29,6 +29,8 @@ class BloxorzSuite extends FunSuite {
       }
   }
 
+  trait InfiniteChecker extends GameDef with Solver
+
   trait Level1 extends SolutionChecker {
     /* terrain for level 1*/
 
@@ -41,6 +43,33 @@ class BloxorzSuite extends FunSuite {
       |------ooo-""".stripMargin
 
     val optsolution = List(Right, Right, Down, Right, Right, Right, Down)
+  }
+
+  trait Level0 extends SolutionChecker {
+    /* terrain for level 1*/
+
+    val level =
+      """oooooooooo
+      |oSoooooooo
+      |oooooooooo
+      |oooooooooo
+      |oooooooToo
+      |oooooooooo""".stripMargin
+
+    val optsolution = List(Right, Right, Down, Right, Right, Right, Down)
+  }
+
+  trait InfiniteLevel extends InfiniteTerrain with InfiniteChecker {
+    override lazy val startPos = Pos(10,10)
+    override lazy val goal = Pos(30,30)
+    override val terrain: Terrain = (pos: Pos) => true
+  }
+
+  test("From in InfiniteLevel") {
+    new InfiniteLevel {
+      //println(newNeighborsOnly(neighborsWithHistory(startBlock, Nil), Set.empty).take(4).toList)
+      //println(from(Set((startBlock, Nil)).toStream, Set.empty).take(40).toList mkString "\n")
+    }
   }
 
   test("Neighbors with History Level 1") {
