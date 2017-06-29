@@ -49,4 +49,11 @@ abstract class QuickCheckHeap extends Properties("Heap") with IntHeap {
     findMin(h1) == min
   }
 
+  // If you insert an element into an empty heap, then delete the minimum, the
+  // resulting heap should be empty.
+  property("itemToEmptyAndRemove") = forAll { a:Int =>
+    val h = insert(a, empty)
+    val eH = deleteMin(h)
+    eH == empty
+  }
 }
