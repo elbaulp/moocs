@@ -40,4 +40,13 @@ abstract class QuickCheckHeap extends Properties("Heap") with IntHeap {
     findMin(h) == a
   }
 
+  // If you insert any two elements into an empty heap, finding the minimum of the
+  // resulting heap should get the smallest of the two elements back.
+  property("2items2emptyH") = forAll { (a: Int, b:Int) =>
+    val h = insert(a, empty)
+    val h1 = insert(b, h)
+    val min = a min b
+    findMin(h1) == min
+  }
+
 }
