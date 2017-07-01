@@ -7,6 +7,7 @@ import Arbitrary._
 import Gen._
 import Prop._
 import Arbitrary.arbitrary
+import scala.annotation.tailrec
 
 /**
   * - A property is the testable unit in ScalaCheck.
@@ -56,4 +57,20 @@ abstract class QuickCheckHeap extends Properties("Heap") with IntHeap {
     val eH = deleteMin(h)
     eH == empty
   }
+
+  // Given any heap, you should get a sorted sequence of elements when
+  // continually finding and deleting minima. (Hint: recursion and helper
+  // functions are your friends.)
+  property("sorted") = forAll { h: H =>
+    @tailrec
+    def removeAll(h: H, acc:List[A]): List[A] = {
+      if (isEmpty(h)) Nil
+      else {
+        val min = findMin(h)
+        removeAll(deleteMin(h), min :: acc)
+      }
+    }
+    removeAll(h, Nil) == removeAll(h, Nil).sorted
+  }
+
 }
