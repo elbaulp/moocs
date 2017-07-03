@@ -73,4 +73,10 @@ abstract class QuickCheckHeap extends Properties("Heap") with IntHeap {
     removeAll(h, Nil) == removeAll(h, Nil).sorted
   }
 
+  property("Melting") = forAll { (h1: H, h2: H) =>
+    (!isEmpty(h1) && !isEmpty(h2)) ==> {
+      val min = findMin(h1).min(findMin(h2))
+      findMin(meld(h1, h2)) == min
+    }
+  }
 }
