@@ -58,25 +58,43 @@ abstract class QuickCheckHeap extends Properties("Heap") with IntHeap {
     eH == empty
   }
 
+
   // Given any heap, you should get a sorted sequence of elements when
   // continually finding and deleting minima. (Hint: recursion and helper
   // functions are your friends.)
   property("sorted") = forAll { h: H =>
     @tailrec
-    def removeAll(h: H, acc:List[A]): List[A] = {
+    def removeAll(h: H, acc:List[A] = Nil): List[A] = {
       if (isEmpty(h)) Nil
       else {
         val min = findMin(h)
         removeAll(deleteMin(h), min :: acc)
       }
     }
-    removeAll(h, Nil) == removeAll(h, Nil).sorted
+
+    removeAll(h) == removeAll(h).sorted
   }
 
+  // Finding a minimum of the melding of any two heaps should return a
+  // minimum of one or the other.
   property("Melting") = forAll { (h1: H, h2: H) =>
     (!isEmpty(h1) && !isEmpty(h2)) ==> {
       val min = findMin(h1).min(findMin(h2))
       findMin(meld(h1, h2)) == min
     }
+  }
+
+  // A heap with 2 elements should return first the minimun and
+  // then the max
+  property("MinMax") = forAll { (a: Int, b: Int) =>
+    val h = insert(a, insert(b, empty))
+    val mi = findMin(h)
+    val newH = deleteMin(h)
+    val ma = findMin(newH)
+
+    all(
+      "min" |: (a min b) == mi,
+      "max" |: (a max b) == ma
+    )
   }
 }
