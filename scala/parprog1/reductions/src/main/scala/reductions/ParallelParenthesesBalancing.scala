@@ -44,9 +44,10 @@ object ParallelParenthesesBalancing {
   def balance(chars: Array[Char]): Boolean = {
     @tailrec
     def check(acc: Int, c: Array[Char], idx: Int): Boolean = {
-      if (idx == c.length) acc == 0
+      if (acc < 0) false
+      else if (idx == c.length) acc == 0
       else c(idx) match {
-        case '(' if (acc & 1) == 0 => check(acc + 1, c, idx + 1)
+        case '(' => check(acc + 1, c, idx + 1)
         case ')' => check(acc - 1, c, idx + 1)
         case _ => check(acc, c, idx + 1)
       }
@@ -63,7 +64,9 @@ object ParallelParenthesesBalancing {
       if (idx == until) (arg1, arg2)
       else chars(idx) match {
         case '(' => traverse(idx + 1, until, arg1 + 1, arg2)
-        case ')' => traverse(idx + 1, until, arg1, arg2 + 1)
+        case ')' =>
+          if (arg1 > 0) traverse(idx + 1, until, arg1 - 1, arg2)
+          else traverse(idx + 1, until, arg1, arg2 + 1)
         case _ => traverse(idx + 1, until, arg1, arg2)
       }
     }
@@ -77,8 +80,11 @@ object ParallelParenthesesBalancing {
           reduce(from, mid),
           reduce(mid, until)
         )
-
-        (ll - rr, lr - rl)
+        if (ll > rr) {
+          (ll - rr + rl,  lr)
+        } else {
+          (rl , rr - ll + lr)
+        }
       }
     }
 

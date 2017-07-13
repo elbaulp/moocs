@@ -45,5 +45,55 @@ class ParallelParenthesesBalancingSuite extends FunSuite {
     check(").", false)
   }
 
+  test("Balance should work for nested strings") {
+    def check(input: String, expected: Boolean) =
+      assert(balance(input.toArray) == expected,
+        s"parBalance($input) should be $expected")
+
+    check("(())", true)
+  }
+
+
+  test("parBalance should work for empty string") {
+    def check(input: String, expected: Boolean) =
+      assert(parBalance(input.toArray, 1) == expected,
+        s"parBalance($input) should be $expected")
+
+    check("", true)
+  }
+
+  test("parBalance should work for string of length 1") {
+    def check(input: String, expected: Boolean) =
+      assert(parBalance(input.toArray, 1) == expected,
+        s"parBalance($input) should be $expected")
+
+    check("(", false)
+    check(")", false)
+    check(".", true)
+  }
+
+  test("parBalance should work for string of length 2") {
+    def check(input: String, expected: Boolean) =
+      assert(parBalance(input.toArray, 1) == expected,
+        s"parBalance($input) should be $expected")
+
+
+    check("()", true)
+    check(")(", false)
+    check("((", false)
+    check("))", false)
+    check(".)", false)
+    check(".(", false)
+    check("(.", false)
+    check(").", false)
+  }
+
+  test("parBalance should work for nested strings") {
+    def check(input: String, expected: Boolean) =
+      assert(parBalance(input.toArray, 1) == expected,
+        s"parBalance($input) should be $expected")
+
+    check("(())", true)
+  }
 
 }
