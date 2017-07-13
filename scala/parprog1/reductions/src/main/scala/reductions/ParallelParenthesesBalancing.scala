@@ -1,6 +1,6 @@
 package reductions
 
-import scala.annotation._
+import scala.annotation.tailrec
 import org.scalameter._
 import common._
 
@@ -15,7 +15,7 @@ object ParallelParenthesesBalancingRunner {
     Key.exec.maxWarmupRuns -> 80,
     Key.exec.benchRuns -> 120,
     Key.verbose -> true
-  ) withWarmer(new Warmer.Default)
+  ) withWarmer (new Warmer.Default)
 
   def main(args: Array[String]): Unit = {
     val length = 100000000
@@ -38,25 +38,51 @@ object ParallelParenthesesBalancingRunner {
 
 object ParallelParenthesesBalancing {
 
-  /** Returns `true` iff the parentheses in the input `chars` are balanced.
+  /**
+   * Returns `true` iff the parentheses in the input `chars` are balanced.
    */
   def balance(chars: Array[Char]): Boolean = {
-    ???
+    @tailrec
+    def check(acc: Int, c: Array[Char], idx: Int): Boolean = {
+      if (idx == c.length) acc == 0
+      else c(idx) match {
+        case '(' if (acc & 1) == 0 => check(acc + 1, c, idx + 1)
+        case ')' => check(acc - 1, c, idx + 1)
+        case _ => check(acc, c, idx + 1)
+      }
+    }
+    check(0, chars, 0)
   }
 
-  /** Returns `true` iff the parentheses in the input `chars` are balanced.
+  /**
+   * Returns `true` iff the parentheses in the input `chars` are balanced.
    */
   def parBalance(chars: Array[Char], threshold: Int): Boolean = {
-
-    def traverse(idx: Int, until: Int, arg1: Int, arg2: Int) /*: ???*/ = {
-      ???
+    @tailrec
+    def traverse(idx: Int, until: Int, arg1: Int, arg2: Int): (Int, Int) = {
+      if (idx == until) (arg1, arg2)
+      else chars(idx) match {
+        case '(' => traverse(idx + 1, until, arg1 + 1, arg2)
+        case ')' => traverse(idx + 1, until, arg1, arg2 + 1)
+        case _ => traverse(idx + 1, until, arg1, arg2)
+      }
     }
 
-    def reduce(from: Int, until: Int) /*: ???*/ = {
-      ???
+    def reduce(from: Int, until: Int): (Int, Int) = {
+      if (until - from <= threshold)
+        traverse(from, until, 0, 0)
+      else {
+        val mid = (from + until) / 2
+        val ((ll, lr), (rl, rr)) = parallel(
+          reduce(from, mid),
+          reduce(mid, until)
+        )
+
+        (ll - rr, lr - rl)
+      }
     }
 
-    reduce(0, chars.length) == ???
+    reduce(0, chars.length) == (0, 0)
   }
 
   // For those who want more:
