@@ -38,7 +38,6 @@ object LineOfSight {
     @tailrec
     def loop(i: Int = 1, m: Float = 0): Unit = {
       if (i < output.length) {
-        println(s"${output(i)}")
         val vAngle = input(i) / i
         val mUpdated = max(vAngle, m)
         output(i) = mUpdated
@@ -64,7 +63,7 @@ object LineOfSight {
    */
   def upsweepSequential(input: Array[Float], from: Int, until: Int): Float = {
     @tailrec
-    def loop(i: Int, m: Float = 0):Float = {
+    def loop(i: Int, m: Float = 0): Float = {
       if (i < until) {
         val updated = max(input(i) / i, m)
         loop(i + 1, updated)
@@ -84,7 +83,18 @@ object LineOfSight {
    */
   def upsweep(input: Array[Float], from: Int, end: Int,
     threshold: Int): Tree = {
-    ???
+    if ((end - from) < threshold) {
+      val max = upsweepSequential(input, from, end)
+      Leaf(from, end, max)
+    } else {
+      val mid = (from + end) / 2
+      val (l, r) = parallel(
+        upsweep(input, from, mid, threshold),
+        upsweep(input, mid, end, threshold)
+      )
+
+      Node(l, r)
+    }
   }
 
   /**
