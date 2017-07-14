@@ -63,7 +63,14 @@ object LineOfSight {
    * Traverses the specified part of the array and returns the maximum angle.
    */
   def upsweepSequential(input: Array[Float], from: Int, until: Int): Float = {
-    ???
+    @tailrec
+    def loop(i: Int, m: Float = 0):Float = {
+      if (i < until) {
+        val updated = max(input(i) / i, m)
+        loop(i + 1, updated)
+      } else m
+    }
+    loop(from)
   }
 
   /**
