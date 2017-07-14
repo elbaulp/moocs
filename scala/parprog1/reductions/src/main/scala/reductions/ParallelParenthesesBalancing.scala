@@ -75,7 +75,7 @@ object ParallelParenthesesBalancing {
       if (until - from <= threshold)
         traverse(from, until, 0, 0)
       else {
-        val mid = (from + until) / 2
+        val mid = from + (until - from) / 2
         val ((ll, lr), (rl, rr)) = parallel(
           reduce(from, mid),
           reduce(mid, until)
