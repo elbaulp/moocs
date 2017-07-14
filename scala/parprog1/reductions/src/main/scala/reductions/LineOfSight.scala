@@ -2,15 +2,16 @@ package reductions
 
 import org.scalameter._
 import common._
+import scala.annotation.tailrec
 
 object LineOfSightRunner {
-  
+
   val standardConfig = config(
     Key.exec.minWarmupRuns -> 40,
     Key.exec.maxWarmupRuns -> 80,
     Key.exec.benchRuns -> 100,
     Key.verbose -> true
-  ) withWarmer(new Warmer.Default)
+  ) withWarmer (new Warmer.Default)
 
   def main(args: Array[String]) {
     val length = 10000000
@@ -34,7 +35,18 @@ object LineOfSight {
   def max(a: Float, b: Float): Float = if (a > b) a else b
 
   def lineOfSight(input: Array[Float], output: Array[Float]): Unit = {
-    ???
+    @tailrec
+    def loop(i: Int = 1, m: Float = 0): Unit = {
+      if (i < output.length) {
+        println(s"${output(i)}")
+        val vAngle = input(i) / i
+        val mUpdated = max(vAngle, m)
+        output(i) = mUpdated
+        loop(i + 1, mUpdated)
+      }
+    }
+    output(0) = 0
+    loop()
   }
 
   sealed abstract class Tree {
@@ -47,13 +59,15 @@ object LineOfSight {
 
   case class Leaf(from: Int, until: Int, maxPrevious: Float) extends Tree
 
-  /** Traverses the specified part of the array and returns the maximum angle.
+  /**
+   * Traverses the specified part of the array and returns the maximum angle.
    */
   def upsweepSequential(input: Array[Float], from: Int, until: Int): Float = {
     ???
   }
 
-  /** Traverses the part of the array starting at `from` and until `end`, and
+  /**
+   * Traverses the part of the array starting at `from` and until `end`, and
    *  returns the reduction tree for that part of the array.
    *
    *  The reduction tree is a `Leaf` if the length of the specified part of the
@@ -66,7 +80,8 @@ object LineOfSight {
     ???
   }
 
-  /** Traverses the part of the `input` array starting at `from` and until
+  /**
+   * Traverses the part of the `input` array starting at `from` and until
    *  `until`, and computes the maximum angle for each entry of the output array,
    *  given the `startingAngle`.
    */
@@ -75,7 +90,8 @@ object LineOfSight {
     ???
   }
 
-  /** Pushes the maximum angle in the prefix of the array to each leaf of the
+  /**
+   * Pushes the maximum angle in the prefix of the array to each leaf of the
    *  reduction `tree` in parallel, and then calls `downsweepTraverse` to write
    *  the `output` angles.
    */
