@@ -61,10 +61,7 @@ class KMeans {
   }
 
   def update(classified: GenMap[Point, GenSeq[Point]], oldMeans: GenSeq[Point]): GenSeq[Point] = {
-    for {
-      old <- oldMeans
-      cla <- classified
-    } yield findAverage(old, cla._2)
+    for (old <- oldMeans) yield findAverage(old, classified(old))
   }
 
   def converged(eta: Double)(oldMeans: GenSeq[Point], newMeans: GenSeq[Point]): Boolean = {
@@ -73,7 +70,11 @@ class KMeans {
 
   @tailrec
   final def kMeans(points: GenSeq[Point], means: GenSeq[Point], eta: Double): GenSeq[Point] = {
-    if (???) kMeans(???, ???, ???) else ??? // your implementation need to be tail recursive
+    val updatedPoints = classify(points, means)
+    val newCentroids = update(updatedPoints, means)
+    if (!converged(eta)(means, newCentroids))
+      kMeans(points, newCentroids, eta)
+    else newCentroids
   }
 }
 
