@@ -120,6 +120,7 @@ package object barneshut {
 
   class Body(val mass: Float, val x: Float, val y: Float, val xspeed: Float, val yspeed: Float) {
 
+
     def updated(quad: Quad): Body = {
       var netforcex = 0.0f
       var netforcey = 0.0f
@@ -146,14 +147,36 @@ package object barneshut {
         }
       }
 
+      /* empty quadtree does not affect the net force
+       * each body in a leaf quadtree adds some net force
+       * a fork quadtree that is sufficiently far away acts as a single point of mass
+       * a fork quadtree that is not sufficiently far away must be recursively traversed
+       *
+       * When are we allowed to approximate a cluster of bodies with a single point? The heuristic that is used is that the size of the cell divided by the distance dist between the center of mass and the particle is less than some constant theta:
+       *
+       * Hint: make sure you use the distance to compute distance between points, the theta value for the condition, and addForce to add force contributions! */
+
+
       def traverse(quad: Quad): Unit = (quad: Quad) match {
         case Empty(_, _, _) =>
-        // no force
+          // no force
         case Leaf(_, _, _, bodies) =>
-        // add force contribution of each body by calling addForce
+          // add force contribution of each body by calling addForce
+          bodies foreach(b => addForce(b.mass, b.mass * b.x / b.mass, b.mass * b.y / b.mass))
         case Fork(nw, ne, sw, se) =>
-        // see if node is far enough from the body,
-        // or recursion is needed
+          // see if node is far enough from the body,
+          // or recursion is needed
+          val dist = distance(x, y, quad.massX, quad.massY)
+          if (quad.size / dist < theta){
+            // not enough far away, recursively traverse
+            traverse(nw)
+            traverse(ne)
+            traverse(sw)
+            traverse(se)
+          } else {
+            // far away, treat cluster of bodies as a single point
+            addForce(quad.mass, quad.massX, quad.massY)
+          }
       }
 
       traverse(quad)
