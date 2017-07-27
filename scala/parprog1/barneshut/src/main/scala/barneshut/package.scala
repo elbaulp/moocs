@@ -188,18 +188,27 @@ package object barneshut {
 
       new Body(mass, nx, ny, nxspeed, nyspeed)
     }
-
   }
 
   val SECTOR_PRECISION = 8
 
   class SectorMatrix(val boundaries: Boundaries, val sectorPrecision: Int) {
+    import scala.language.implicitConversions
+
+    implicit def toInt(x: Float) = x.toInt
+
     val sectorSize = boundaries.size / sectorPrecision
     val matrix = new Array[ConcBuffer[Body]](sectorPrecision * sectorPrecision)
     for (i <- 0 until matrix.length) matrix(i) = new ConcBuffer
 
     def +=(b: Body): SectorMatrix = {
-      ???
+      val x0 = boundaries.width / sectorPrecision
+      val y0 = boundaries.height / sectorPrecision
+      val bx = b.x / x0
+      val by = b.y / y0
+
+      apply(bx, by) += b
+
       this
     }
 
@@ -208,6 +217,7 @@ package object barneshut {
     def combine(that: SectorMatrix): SectorMatrix = {
       ???
     }
+
 
     def toQuad(parallelism: Int): Quad = {
       def BALANCING_FACTOR = 4
