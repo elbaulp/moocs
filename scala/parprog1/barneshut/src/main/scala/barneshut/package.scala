@@ -60,7 +60,7 @@ package object barneshut {
   ) extends Quad {
     val centerX: Float = nw.centerX + nw.size / 2
     val centerY: Float = nw.centerY + nw.size / 2
-    val size: Float = nw.size + ne.size + sw.size + se.size
+    val size: Float = nw.size * 2
     val mass: Float = nw.mass + ne.mass + sw.mass + se.mass
     val massX: Float =
       if (mass != 0) (nw.mass * nw.massX + ne.mass * ne.massX + sw.mass * sw.massX + se.mass * se.massX) / mass
@@ -84,21 +84,21 @@ package object barneshut {
   case class Leaf(centerX: Float, centerY: Float, size: Float, bodies: Seq[Body])
       extends Quad {
 
-    val mass = bodies.foldLeft(0f)((m, b) => m + b.mass)
-    val massX = bodies.foldLeft(0f)((xm, b) => xm + (b.mass * b.x) / mass)
-    val massY = bodies.foldLeft(0f)((ym, b) => ym + (b.mass * b.y) / mass)
+    val mass = bodies.foldLeft(0f)(_ + _.mass)
+    val massX = bodies.foldLeft(0f)((xm, b) => xm + b.mass * b.x) / mass
+    val massY = bodies.foldLeft(0f)((ym, b) => ym + b.mass * b.y) / mass
     val total: Int = bodies.size
 
     def insert(b: Body): Quad = {
       if (size > minimumSize){
         val newSize = size / 2
         val empties = Fork(
-          Empty(centerX, centerY + size / 2, newSize),
-          Empty(centerX, centerY, newSize),
-          Empty(centerX, centerY, newSize),
-          Empty(centerX, centerY, newSize)
+          Empty(centerX - size/4, centerY - size/4, newSize),
+          Empty(centerX + size/4, centerY - size/4, newSize),
+          Empty(centerX - size/4, centerY + size/4, newSize),
+          Empty(centerX + size/4, centerY + size/4, newSize)
         )
-        bodies.foldLeft(empties)((f, b) => f.insert(b))
+        (b +: bodies).foldLeft(empties)((f, b) => f.insert(b))
 
       } else {
         Leaf(centerX, centerY, size, b +: bodies)
@@ -172,14 +172,14 @@ package object barneshut {
           // or recursion is needed
           val dist = distance(x, y, quad.massX, quad.massY)
           if (quad.size / dist < theta){
+            // far away, treat cluster of bodies as a single point
+            addForce(quad.mass, quad.massX, quad.massY)
+          } else {
             // not enough far away, recursively traverse
             traverse(nw)
             traverse(ne)
             traverse(sw)
             traverse(se)
-          } else {
-            // far away, treat cluster of bodies as a single point
-            addForce(quad.mass, quad.massX, quad.massY)
           }
       }
 
