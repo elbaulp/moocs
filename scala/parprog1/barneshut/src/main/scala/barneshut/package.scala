@@ -62,8 +62,12 @@ package object barneshut {
     val centerY: Float = nw.centerY + nw.size / 2
     val size: Float = nw.size + ne.size + sw.size + se.size
     val mass: Float = nw.mass + ne.mass + sw.mass + se.mass
-    val massX: Float = (nw.mass * nw.massX + ne.mass * ne.massX + sw.mass * sw.massX + se.mass * se.massX) / mass
-    val massY: Float = (nw.mass * nw.massY + ne.mass * ne.massY + sw.mass * sw.massY + se.mass * se.massY) / mass
+    val massX: Float =
+      if (mass != 0) (nw.mass * nw.massX + ne.mass * ne.massX + sw.mass * sw.massX + se.mass * se.massX) / mass
+      else centerX
+    val massY: Float =
+      if (mass != 0) (nw.mass * nw.massY + ne.mass * ne.massY + sw.mass * sw.massY + se.mass * se.massY) / mass
+      else centerY
     val total: Int = nw.total + ne.total + sw.total + se.total
 
     def insert(b: Body): Fork = {
@@ -204,10 +208,15 @@ package object barneshut {
     def +=(b: Body): SectorMatrix = {
       val x0 = boundaries.width / sectorPrecision
       val y0 = boundaries.height / sectorPrecision
-      val bx = b.x / x0
-      val by = b.y / y0
+      val bx:Float = b.x / x0
+      val by:Float = b.y / y0
 
-      apply(bx, by) += b
+      println(s"$bx, $by")
+
+      val xLoc = if (bx > x0) x0 else bx
+      val yLoc = if (by > y0) y0 else by
+
+      apply(xLoc, yLoc) += b
 
       this
     }
