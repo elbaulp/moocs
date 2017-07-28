@@ -71,7 +71,7 @@ package object barneshut {
     val total: Int = nw.total + ne.total + sw.total + se.total
 
     def insert(b: Body): Fork = {
-      if (b.x < centerX){
+      if (b.x < centerX) {
         if (b.y < centerY) Fork(nw.insert(b), ne, sw, se)
         else Fork(nw, ne, sw.insert(b), se)
       } else {
@@ -82,7 +82,7 @@ package object barneshut {
   }
 
   case class Leaf(centerX: Float, centerY: Float, size: Float, bodies: Seq[Body])
-      extends Quad {
+    extends Quad {
 
     val mass = bodies.foldLeft(0f)(_ + _.mass)
     val massX = bodies.foldLeft(0f)((xm, b) => xm + b.mass * b.x) / mass
@@ -90,13 +90,13 @@ package object barneshut {
     val total: Int = bodies.size
 
     def insert(b: Body): Quad = {
-      if (size > minimumSize){
+      if (size > minimumSize) {
         val newSize = size / 2
         val empties = Fork(
-          Empty(centerX - size/4, centerY - size/4, newSize),
-          Empty(centerX + size/4, centerY - size/4, newSize),
-          Empty(centerX - size/4, centerY + size/4, newSize),
-          Empty(centerX + size/4, centerY + size/4, newSize)
+          Empty(centerX - size / 4, centerY - size / 4, newSize),
+          Empty(centerX + size / 4, centerY - size / 4, newSize),
+          Empty(centerX - size / 4, centerY + size / 4, newSize),
+          Empty(centerX + size / 4, centerY + size / 4, newSize)
         )
         (b +: bodies).foldLeft(empties)((f, b) => f.insert(b))
 
@@ -123,7 +123,6 @@ package object barneshut {
   }
 
   class Body(val mass: Float, val x: Float, val y: Float, val xspeed: Float, val yspeed: Float) {
-
 
     def updated(quad: Quad): Body = {
       var netforcex = 0.0f
@@ -160,18 +159,17 @@ package object barneshut {
        *
        * Hint: make sure you use the distance to compute distance between points, the theta value for the condition, and addForce to add force contributions! */
 
-
       def traverse(quad: Quad): Unit = (quad: Quad) match {
         case Empty(_, _, _) =>
-          // no force
+        // no force
         case Leaf(_, _, _, bodies) =>
           // add force contribution of each body by calling addForce
-          bodies foreach(b => addForce(b.mass, b.mass * b.x / b.mass, b.mass * b.y / b.mass))
+          bodies foreach (b => addForce(b.mass, b.mass * b.x / b.mass, b.mass * b.y / b.mass))
         case Fork(nw, ne, sw, se) =>
           // see if node is far enough from the body,
           // or recursion is needed
           val dist = distance(x, y, quad.massX, quad.massY)
-          if (quad.size / dist < theta){
+          if (quad.size / dist < theta) {
             // far away, treat cluster of bodies as a single point
             addForce(quad.mass, quad.massX, quad.massY)
           } else {
@@ -197,24 +195,31 @@ package object barneshut {
   val SECTOR_PRECISION = 8
 
   class SectorMatrix(val boundaries: Boundaries, val sectorPrecision: Int) {
-    import scala.language.implicitConversions
-
-    implicit def toInt(x: Float) = x.toInt
-
     val sectorSize = boundaries.size / sectorPrecision
     val matrix = new Array[ConcBuffer[Body]](sectorPrecision * sectorPrecision)
     for (i <- 0 until matrix.length) matrix(i) = new ConcBuffer
 
+    private def checkBoundary(v: Float, min: Float, max: Float) =
+      if (v < min) min
+      else if (v >= max) max - 1
+      else v
+
+    private def normalize(v: Float, min: Float, max: Float) =
+      ((v - min) / (max - min)) * sectorPrecision
+
     def +=(b: Body): SectorMatrix = {
-      val x0 = boundaries.width / sectorPrecision
-      val y0 = boundaries.height / sectorPrecision
-      val bx:Float = b.x / x0
-      val by:Float = b.y / y0
+      val minx = boundaries.minX
+      val miny = boundaries.minY
+      val maxx = boundaries.maxX
+      val maxy = boundaries.maxY
 
-      val xLoc = if (bx > x0) x0 else bx
-      val yLoc = if (by > y0) y0 else by
+      val newY = checkBoundary(b.y, miny, maxy)
+      val newX = checkBoundary(b.x, minx, maxx)
+      val normX = normalize(newY, miny, maxy)
+      val normY = normalize(newX, minx, maxx)
+      val i = normY.toInt * sectorPrecision + normX.toInt
 
-      apply(xLoc, yLoc) += b
+      matrix(i.toInt) += b
 
       this
     }
@@ -227,14 +232,13 @@ package object barneshut {
 
       val newM = for {
         i <- 0 until matrix.size
-      } yield (matrix(i) combine(that.matrix(i)))
+      } yield (matrix(i) combine (that.matrix(i)))
 
       // Add all bodies to the combined SectorMatrix
       newM.foreach(concB => concB.foreach(b => combined += b))
 
       combined
     }
-
 
     def toQuad(parallelism: Int): Quad = {
       def BALANCING_FACTOR = 4
@@ -290,7 +294,7 @@ package object barneshut {
         case None => timeMap(title) = (0.0, 0)
       }
 
-      println(s"$title: ${totalTime} ms; avg: ${timeMap(title)._1 / timeMap(title)._2}")
+      //println(s"$title: ${totalTime} ms; avg: ${timeMap(title)._1 / timeMap(title)._2}")
       res
     }
 
