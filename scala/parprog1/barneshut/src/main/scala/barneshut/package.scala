@@ -211,8 +211,6 @@ package object barneshut {
       val bx:Float = b.x / x0
       val by:Float = b.y / y0
 
-      println(s"$bx, $by")
-
       val xLoc = if (bx > x0) x0 else bx
       val yLoc = if (by > y0) y0 else by
 
@@ -224,7 +222,17 @@ package object barneshut {
     def apply(x: Int, y: Int) = matrix(y * sectorPrecision + x)
 
     def combine(that: SectorMatrix): SectorMatrix = {
-      ???
+
+      val combined = new SectorMatrix(boundaries, sectorPrecision)
+
+      val newM = for {
+        i <- 0 until matrix.size
+      } yield (matrix(i) combine(that.matrix(i)))
+
+      // Add all bodies to the combined SectorMatrix
+      newM.foreach(concB => concB.foreach(b => combined += b))
+
+      combined
     }
 
 
