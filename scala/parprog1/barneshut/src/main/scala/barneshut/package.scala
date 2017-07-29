@@ -199,27 +199,35 @@ package object barneshut {
     val matrix = new Array[ConcBuffer[Body]](sectorPrecision * sectorPrecision)
     for (i <- 0 until matrix.length) matrix(i) = new ConcBuffer
 
-    private def checkBoundary(v: Float, min: Float, max: Float) =
-      if (v < min) min
-      else if (v >= max) max - 1
-      else v
+		
+    // Thanks to https://github.com/hugcruz/parprog1
+    def trapX(value: Float): Float = {
+      if(value < boundaries.minX) boundaries.minX
+      else if(value >= boundaries.maxX) boundaries.maxX-1
+      else value
+    }
 
-    private def normalize(v: Float, min: Float, max: Float) =
-      ((v - min) / (max - min)) * sectorPrecision
+    def trapY(value: Float): Float = {
+      if(value < boundaries.minY) boundaries.minY
+      else if(value >= boundaries.maxY) boundaries.maxY-1
+      else value
+    }
+
+    def normalize(value: Float, min: Float, max: Float): Float = {
+      (value - min)/(max-min)
+    }
+
+    def normalizeX(value: Float): Float = {
+      normalize(value, boundaries.minX, boundaries.maxX) * sectorPrecision
+    }
+
+    def normalizeY(value: Float): Float = {
+      normalize(value, boundaries.minY, boundaries.maxY) * sectorPrecision
+    }
 
     def +=(b: Body): SectorMatrix = {
-      val minx = boundaries.minX
-      val miny = boundaries.minY
-      val maxx = boundaries.maxX
-      val maxy = boundaries.maxY
-
-      val newY = checkBoundary(b.y, miny, maxy)
-      val newX = checkBoundary(b.x, minx, maxx)
-      val normX = normalize(newY, miny, maxy)
-      val normY = normalize(newX, minx, maxx)
-      val i = normY.toInt * sectorPrecision + normX.toInt
-
-      matrix(i.toInt) += b
+      val sector = normalizeY(trapY(b.y)).toInt * sectorPrecision + normalizeX(trapX(b.x)).toInt
+      matrix(sector.toInt) += b
 
       this
     }
@@ -239,6 +247,8 @@ package object barneshut {
 
       combined
     }
+
+
 
     def toQuad(parallelism: Int): Quad = {
       def BALANCING_FACTOR = 4
