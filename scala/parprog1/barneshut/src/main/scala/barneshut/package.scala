@@ -199,7 +199,6 @@ package object barneshut {
     val matrix = new Array[ConcBuffer[Body]](sectorPrecision * sectorPrecision)
     for (i <- 0 until matrix.length) matrix(i) = new ConcBuffer
 
-		
     // Thanks to https://github.com/hugcruz/parprog1
     def trapX(value: Float): Float = {
       if(value < boundaries.minX) boundaries.minX
