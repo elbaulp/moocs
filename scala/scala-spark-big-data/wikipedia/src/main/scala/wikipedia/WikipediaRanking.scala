@@ -85,7 +85,7 @@ object WikipediaRanking {
       toList
   }
 
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
 
     /* Languages ranked according to (1) */
     val langsRanked: List[(String, Int)] = timed("Part 1: naive ranking", rankLangs(langs, wikiRdd))
