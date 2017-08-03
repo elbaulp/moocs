@@ -125,7 +125,14 @@ class StackOverflow extends Serializable {
       }
     }
 
-    ???
+    scored map { case (p, score) =>
+      val index = firstLangInTag(p.tags, langs) match {
+        case Some(i) => i * langSpread
+        case _ => langSpread
+      }
+
+      index -> score
+    }
   }
 
 
