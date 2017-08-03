@@ -187,9 +187,18 @@ class StackOverflow extends Serializable {
 
   /** Main kmeans computation */
   @tailrec final def kmeans(means: Array[(Int, Int)], vectors: RDD[(Int, Int)], iter: Int = 1, debug: Boolean = false): Array[(Int, Int)] = {
-    val newMeans = means.clone() // you need to compute newMeans
+    val newMeans = means.clone()
 
-    // TODO: Fill in the newMeans array
+    // compute a indexed means, where the key is the index of the closest cluster
+    // the values are the new means
+    val indexedMeans = vectors.
+      map(v => findClosest(v, means) -> v).
+      groupByKey.mapValues(averageVectors)
+
+    indexedMeans foreach { case (i, x) =>
+      newMeans.update(i, x)
+    }
+
     val distance = euclideanDistance(means, newMeans)
 
     if (debug) {
