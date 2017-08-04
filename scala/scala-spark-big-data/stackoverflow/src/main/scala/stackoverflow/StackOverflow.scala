@@ -193,7 +193,8 @@ class StackOverflow extends Serializable {
     // the values are the new means
     val indexedMeans = vectors.
       map(v => findClosest(v, means) -> v).
-      groupByKey.mapValues(averageVectors)
+      groupByKey.mapValues(averageVectors).
+      collect
 
     indexedMeans foreach { case (i, x) =>
       newMeans.update(i, x)
@@ -297,10 +298,19 @@ class StackOverflow extends Serializable {
     val closestGrouped = closest.groupByKey()
 
     val median = closestGrouped.mapValues { vs =>
-      val langLabel: String   = ??? // most common language in the cluster
-      val langPercent: Double = ??? // percent of the questions in the most common language
-      val clusterSize: Int    = ???
-      val medianScore: Int    = ???
+      // Group tuples of (lang * lanSpread, votes) by lang *langSpread,
+      // then find the greatest and get the language index dividing by langSpread
+      val mostAsked = vs.groupBy(_._1).maxBy(_._2.size)
+      val langIndex = mostAsked._1 / langSpread
+
+      val langLabel: String   = langs(langIndex) // most common language in the cluster
+      val langPercent: Double = 100 * mostAsked._2.size.toDouble / vs.size.toDouble // percent of the questions in the most common language
+      val clusterSize: Int    = mostAsked._2.size
+      val medianScore: Int    = {
+        val votes = mostAsked._2.map(_._2).toSeq.sorted
+        val (l, u) = votes.splitAt(votes.size / 2)
+        if ((votes.size & 1) == 0) (l.last + u.head) / 2 else u.head
+      }
 
       (langLabel, langPercent, clusterSize, medianScore)
     }
