@@ -25,7 +25,7 @@ object StackOverflow extends StackOverflow {
     val grouped = groupedPostings(raw)
     val scored  = scoredPostings(grouped)
     val vectors = vectorPostings(scored)
-//    assert(vectors.count() == 2121822, "Incorrect number of vectors: " + vectors.count())
+    //assert(vectors.count() == 2121822, "Incorrect number of vectors: " + vectors.count())
 
     val means   = kmeans(sampleVectors(vectors), vectors, debug = true)
     val results = clusterResults(means, vectors)
@@ -87,7 +87,8 @@ class StackOverflow extends Serializable {
     val questions = (postings filter isQuestion) map(p => p.id -> p)
     val answers = (postings filter isAnswer) map (a => a.parentId.get -> a) // We want to index by QID
 
-    questions.join(answers).groupByKey
+    questions.join(answers).
+      groupByKey
   }
 
 
@@ -105,7 +106,9 @@ class StackOverflow extends Serializable {
           }
       highScore
     }
-    grouped.values.map(p => p.head._1 -> answerHighScore(p.map(a => a._2).toArray))
+
+    grouped.values.
+      map(p => p.head._1 -> answerHighScore(p.map(a => a._2).toArray))
   }
 
 
@@ -125,14 +128,14 @@ class StackOverflow extends Serializable {
       }
     }
 
-    scored map { case (p, score) =>
+    scored.map { case (p, score) =>
       val index = firstLangInTag(p.tags, langs) match {
         case Some(i) => i * langSpread
         case _ => langSpread
       }
 
       index -> score
-    }
+    }.cache
   }
 
 
