@@ -1,6 +1,6 @@
 package stackoverflow
 
-import org.apache.spark.SparkConf
+import org.apache.spark.{ RangePartitioner, SparkConf }
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 import org.apache.spark.rdd.RDD
@@ -27,7 +27,7 @@ object StackOverflow extends StackOverflow {
     val vectors = vectorPostings(scored)
     //assert(vectors.count() == 2121822, "Incorrect number of vectors: " + vectors.count())
 
-    val means   = kmeans(sampleVectors(vectors), vectors, debug = true)
+    val means   = kmeans(sampleVectors(vectors), vectors, debug = false)
     val results = clusterResults(means, vectors)
     printResults(results)
     sc.stop
@@ -90,6 +90,9 @@ class StackOverflow extends Serializable {
 
     questions.join(answers).
       groupByKey
+    //println(s"""groupedPostings:
+    //           | Deps: ${r.dependencies}
+    //           | Lineage: ${r.toDebugString}""".stripMargin)
   }
 
 
@@ -108,10 +111,14 @@ class StackOverflow extends Serializable {
       highScore
     }
 
-    grouped.values.
-      map(p => p.head._1 -> answerHighScore(p.map(a => a._2).toArray))
-  }
+    grouped.
+      mapValues(p => p.head._1 -> answerHighScore(p.map(a => a._2).toArray)).
+      values
 
+    // println(s"""scoredPostings:
+    //            | Deps: ${r.dependencies}
+    //            | Lineage: ${r.toDebugString}""".stripMargin)
+  }
 
   /** Compute the vectors for the kmeans */
   def vectorPostings(scored: RDD[(Posting, Int)]): RDD[(Int, Int)] = {
@@ -197,10 +204,9 @@ class StackOverflow extends Serializable {
     // the values are the new means
     val indexedMeans = vectors.
       map(v => findClosest(v, means) -> v).
-      groupByKey.mapValues(averageVectors).
-      collect
+      reduceByKey((a, b) => (a._1 + b._1) / 2 -> (a._2 + b._2) / 2)
 
-    indexedMeans foreach { case (i, x) =>
+    indexedMeans.collect foreach { case (i, x) =>
       newMeans.update(i, x)
     }
 
@@ -288,8 +294,6 @@ class StackOverflow extends Serializable {
     }
     ((comp1 / count).toInt, (comp2 / count).toInt)
   }
-
-
 
 
   //
