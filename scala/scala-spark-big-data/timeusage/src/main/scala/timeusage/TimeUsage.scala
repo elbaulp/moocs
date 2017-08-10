@@ -185,10 +185,12 @@ object TimeUsage {
     * Finally, the resulting DataFrame should be sorted by working status, sex and age.
     */
   def timeUsageGrouped(summed: DataFrame): DataFrame = {
-    summed.show()
-    spark.close()
-    sys.exit(1)
-    ???
+    summed.groupBy("working", "sex", "age").
+      agg(
+        round(avg("primaryNeeds"), 1) as("primaryNeeds"),
+        round(avg("work"), 1)         as("work"),
+        round(avg("other"), 1)        as("other")
+      )
   }
 
   /**
