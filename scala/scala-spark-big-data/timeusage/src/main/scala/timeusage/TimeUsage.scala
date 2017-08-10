@@ -148,18 +148,20 @@ object TimeUsage {
     def toHours(a: Column) = a / 60
 
     val workingStatusProjection: Column =
-      when(df("telfs") >= 1 && df("telfs") < 3, "working").
+      when($"telfs" >= 1 && $"telfs" < 3, "working").
         otherwise("not working").as("working")
-    val sexProjection: Column = when(df("tesex") === 1, "male").otherwise("female").as("sex")
+
+    val sexProjection: Column = when($"tesex" === 1, "male").otherwise("female").as("sex")
+
     val ageProjection: Column =
-      when(df("teage") >= 15 && df("teage") <= 22, "young").
-        when(df("teage") >= 23 && df("teage") <= 55, "active").
+      when($"teage" >= 15 && $"teage" <= 22, "young").
+        when($"teage" >= 23 && $"teage" <= 55, "active").
         otherwise("elder").
         as("age")
 
-    val primaryNeedsProjection: Column = toHours(primaryNeedsColumns.reduce(_ + _))
-    val workProjection: Column = toHours(workColumns.reduce(_ + _))
-    val otherProjection: Column = toHours(otherColumns.reduce(_ + _))
+    val primaryNeedsProjection: Column = toHours(primaryNeedsColumns.reduce(_ + _)).as("primaryNeeds")
+    val workProjection: Column = toHours(workColumns.reduce(_ + _)).as("work")
+    val otherProjection: Column = toHours(otherColumns.reduce(_ + _)).as("other")
     df
       .select(workingStatusProjection, sexProjection, ageProjection, primaryNeedsProjection, workProjection, otherProjection)
       .where($"telfs" <= 4) // Discard people who are not in labor force
@@ -183,6 +185,9 @@ object TimeUsage {
     * Finally, the resulting DataFrame should be sorted by working status, sex and age.
     */
   def timeUsageGrouped(summed: DataFrame): DataFrame = {
+    summed.show()
+    spark.close()
+    sys.exit(1)
     ???
   }
 
