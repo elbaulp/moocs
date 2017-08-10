@@ -92,25 +92,19 @@ object TimeUsage {
     *    “t10”, “t12”, “t13”, “t14”, “t15”, “t16” and “t18” (those which are not part of the previous groups only).
     */
   def classifiedColumns(columnNames: List[String]): (List[Column], List[Column], List[Column]) = {
-    def isPNeed(a: String) =
-      a.startsWith("t01") || a.startsWith("t03") || a.startsWith("t11") ||
-      a.startsWith("t1801") || a.startsWith("t1803")
+    val pNeed = "t01" :: "t03" :: "t11" :: "t1801" :: "t1803" :: Nil
+    val work = "t05" :: "t1805" :: Nil
+    val leisure = "t02" :: "t04" :: "t06" :: "t07" :: "t08" :: "t09" :: "t10" ::
+      "t12" :: "t13" :: "t14" :: "t15" :: "t16" :: "t18" :: Nil
 
-    def isWork(a: String) = a.startsWith("t05") || a.startsWith("t1805")
-
-    def isLeisure(a: String) =
-      a.startsWith("t02") || a.startsWith("t04") || a.startsWith("t06") ||
-      a.startsWith("t07") || a.startsWith("t08") || a.startsWith("t09") ||
-      a.startsWith("t12") || a.startsWith("t13") || a.startsWith("t14") ||
-      a.startsWith("t15") || a.startsWith("t16") || a.startsWith("t18") ||
-      a.startsWith("t10")
+    def is(l: List[String])(c: String) = l exists(c startsWith _)
 
     columnNames.map(col).foldLeft((List.empty[Column], List.empty[Column], List.empty[Column])){
-      case ((pNeeds, work, leisure), c) =>
-        if (isPNeed(c.toString)) (c +: pNeeds, work, leisure)
-        else if (isWork(c.toString)) (pNeeds, c +: work, leisure)
-        else if (isLeisure(c.toString)) (pNeeds, work, c +: leisure)
-        else (pNeeds, work, leisure)
+      case ((needsCol, workCol, leisureCol), c) =>
+        if (is(pNeed)(c.toString)) (c +: needsCol, workCol, leisureCol)
+        else if (is(work)(c.toString)) (needsCol, c +: workCol, leisureCol)
+        else if (is(leisure)(c.toString)) (needsCol, workCol, c +: leisureCol)
+        else (needsCol, workCol, leisureCol)
     }
   }
 
