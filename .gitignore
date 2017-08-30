@@ -16,5 +16,4 @@ project/plugins/project/
 .ensime*
 
 # DataSets
-stackoverflow.csv
-atussum.csv
+*.csv
